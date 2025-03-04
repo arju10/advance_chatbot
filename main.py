@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from db.chromadb_handler import get_collection, init_chromadb, insert_data_into_collection, load_data_from_json, query_collection
+from db.chromadb_handler import embadding_query_collection, get_collection, get_embedding, init_chromadb, insert_data_into_collection, load_data_from_json, query_collection
 from db.db import create_connection, create_table, insert_data_from_file
 
 
@@ -27,10 +27,19 @@ insert_data_into_collection(collection, data)  # Pass the loaded data
 print("Data loaded from JSON file successfully!")
 
 
+# Document based search
 @app.get("/search/")
 def search(query: str, limit: int = 5):
     """Search for documents based on a query string."""
     results = query_collection(collection, query, limit)
+    return {"results": results}
+
+# Embedding based search
+@app.get("/search/")
+def search(query: str, limit: int = 5):
+    """Search for documents based on a query string using embeddings."""
+    query_embedding = get_embedding(query)  # Get the query's embedding
+    results = embadding_query_collection(collection, query_embedding, limit)  # Pass the embedding to the query function
     return {"results": results}
 
 @app.get("/")

@@ -2,6 +2,9 @@ import json
 from typing import List
 import uuid
 import chromadb
+from sentence_transformers import SentenceTransformer
+
+
 # Connect to the ChromaDB client
 def init_chromadb():
     # Initialize ChromaDB client with new configuration method
@@ -59,7 +62,7 @@ def insert_data_into_collection(collection, data: List[dict]):
     else:
         print("No valid documents to insert.")
 
-
+# Document based search
 # Query the ChromaDB collection
 def query_collection(collection, query: str, limit: int = 5):
     """Query the collection with a search string."""
@@ -67,3 +70,16 @@ def query_collection(collection, query: str, limit: int = 5):
     results = collection.query(query_texts=[query], n_results=limit)
     return results['documents']
 
+
+# Initialize the sentence transformer model
+model = SentenceTransformer('all-MiniLM-L6-v2')
+
+def get_embedding(text: str):
+    """Generate a vector embedding for the input text."""
+    return model.encode(text)
+# Embedding based search -> Use embeddings for search for better results instead of document based search
+def embadding_query_collection(collection, query_embedding: List[float], limit: int = 5):
+    """Query the collection with a search embedding."""
+    # Query the collection for matching documents using embeddings
+    results = collection.query(query_embeddings=[query_embedding], n_results=limit)
+    return results['documents']
