@@ -1,6 +1,7 @@
 from fastapi import FastAPI
-from db.chromadb_handler import embadding_query_collection, get_collection, get_embedding, init_chromadb, insert_data_into_collection, load_data_from_json, query_collection
+from db.chromadb_handler import get_collection, init_chromadb, insert_data_into_collection, load_data_from_json, query_collection
 from db.db import create_connection, create_table, insert_data_from_file
+from db.embedding import embadding_query_collection, get_embedding
 
 
 app = FastAPI()
