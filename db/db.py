@@ -48,7 +48,7 @@ def create_table():
             """
             cursor.execute(query)
             connection.commit()
-            print("Table created successfully!")
+            print("Table created successfully! in the database")
         else:
             print("Connection to the database failed.")
     except Exception as e:
