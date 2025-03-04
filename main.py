@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from db.chromadb_handler import get_collection, init_chromadb
 from db.db import create_connection, create_table, insert_data_from_file
 
 
@@ -12,6 +13,15 @@ create_table()
 
 # Insert the data from the JSON file into the database
 insert_data_from_file(data_file)
+
+# Initialize ChromaDB
+client = init_chromadb()
+
+# Get or create the collection
+collection = get_collection(client)
+
+# Check if the collection is created successfully
+print("Collection created or fetched:", collection.name)
 
 @app.get("/")
 def read_root():
