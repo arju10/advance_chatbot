@@ -1,33 +1,38 @@
 import json
 import psycopg2
-from psycopg2 import sql
-
 from psycopg2 import OperationalError
+from dotenv import load_dotenv
+import os
 
+# Load environment variables from .env file
+load_dotenv()
+
+# Retrieve database credentials from environment variables
+DB_NAME = os.getenv('DB_NAME')
+DB_USER = os.getenv('DB_USER')
+DB_PASSWORD = os.getenv('DB_PASSWORD')
+DB_HOST = os.getenv('DB_HOST')
+DB_PORT = os.getenv('DB_PORT')
 
 # Define the connection parameters
-"""
-    Create and return a connection to the PostgreSQL database.
-"""
 def create_connection():
     try:
         connection = psycopg2.connect(
-            dbname="advance_chatbot",  # replace with your database name
-            user="postgres",        # replace with your username
-            password="postgres",     # replace with your password
-            host="localhost",             # or the appropriate host
-            port="5432"                   # default port for PostgreSQL
+            dbname=DB_NAME,
+            user=DB_USER,
+            password=DB_PASSWORD,
+            host=DB_HOST,
+            port=DB_PORT
         )
         print("Connection successful!")
         return connection
     except OperationalError as e:
         print(f"Error: {e}")
         return None
-    # Closing the connection after use
-        connection.close()
 
 # Function to create the table if it doesn't exist
 def create_table():
+    connection = None
     try:
         connection = create_connection()
         if connection:
@@ -50,36 +55,46 @@ def create_table():
         print(f"Error creating table: {e}")
     finally:
         if connection:
-            connection.close()
+            connection.close()  # Close the connection manually after the operation
 
-# Function to insert data into the table
-# # Function to insert data into the table from a JSON file
+# Function to insert data into the table from a JSON file
 def insert_data_from_file(file_path):
+    connection = None
     try:
         # Load JSON data from file
         with open(file_path, 'r') as file:
             json_data = json.load(file)
-        
+
         connection = create_connection()
         if connection:
             cursor = connection.cursor()
-            
+
+            data_to_insert = []
             for entry in json_data:
+                # Check for required fields before adding to the batch
+                if 'title' in entry and 'url' in entry and 'content' in entry:
+                    data_to_insert.append((entry['title'], entry['url'], entry['content']))
+                else:
+                    print(f"Skipping invalid entry: {entry}")
+
+            if data_to_insert:
                 query = """
                 INSERT INTO page_data (title, url, content)
                 VALUES (%s, %s, %s);
                 """
-                cursor.execute(query, (entry['title'], entry['url'], entry['content']))
-            
-            connection.commit()
-            print(f"Data from {file_path} inserted successfully!")
+                cursor.executemany(query, data_to_insert)
+
+                connection.commit()
+                print(f"Data from {file_path} inserted successfully!")
+            else:
+                print("No valid data to insert.")
         else:
             print("Connection to the database failed.")
     except Exception as e:
         print(f"Error inserting data from file: {e}")
     finally:
         if connection:
-            connection.close()
+            connection.close()  # Close the connection manually after the operation
 
 
 
