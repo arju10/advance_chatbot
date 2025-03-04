@@ -58,3 +58,12 @@ def insert_data_into_collection(collection, data: List[dict]):
         print(f"Inserted {len(documents)} documents into the chromadb collection.")
     else:
         print("No valid documents to insert.")
+
+
+# Query the ChromaDB collection
+def query_collection(collection, query: str, limit: int = 5):
+    """Query the collection with a search string."""
+    # Query the collection for matching documents
+    results = collection.query(query_texts=[query], n_results=limit)
+    return results['documents']
+

@@ -102,4 +102,6 @@ def insert_data_from_file(file_path):
 Neccesseary commands
 psql -U your_user_name -h localhost
 psql -U your_user_name -h localhost -d your_database_name
+uvicorn main:app --reload
+
 '''

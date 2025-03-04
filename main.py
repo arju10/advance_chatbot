@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from db.chromadb_handler import get_collection, init_chromadb, insert_data_into_collection, load_data_from_json
+from db.chromadb_handler import get_collection, init_chromadb, insert_data_into_collection, load_data_from_json, query_collection
 from db.db import create_connection, create_table, insert_data_from_file
 
 
@@ -14,6 +14,7 @@ print(f"Loaded {len(data)} items from the JSON file.")
 
 create_connection()
 create_table() # Create table (if it doesn't exist)
+insert_data_from_file(data_file)  # Insert data into the table from the JSON file
 
 # Initialize ChromaDB client
 client = init_chromadb()
@@ -24,6 +25,13 @@ print("Collection created or fetched:", collection.name)
 # Insert the data into ChromaDB
 insert_data_into_collection(collection, data)  # Pass the loaded data
 print("Data loaded from JSON file successfully!")
+
+
+@app.get("/search/")
+def search(query: str, limit: int = 5):
+    """Search for documents based on a query string."""
+    results = query_collection(collection, query, limit)
+    return {"results": results}
 
 @app.get("/")
 def read_root():
