@@ -25,33 +25,28 @@ def create_connection():
     # Closing the connection after use
         connection.close()
 
-def create_data_tables():
+# Function to create the table if it doesn't exist
+def create_table():
     try:
         connection = create_connection()
         if connection:
             cursor = connection.cursor()
-            
-            # Create the queries and responses tables
             query = """
-            CREATE TABLE IF NOT EXISTS queries (
+            CREATE TABLE IF NOT EXISTS page_data (
                 id SERIAL PRIMARY KEY,
-                question TEXT NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            );
-            CREATE TABLE IF NOT EXISTS responses (
-                id SERIAL PRIMARY KEY,
-                query_id INT REFERENCES queries(id),
-                response TEXT NOT NULL,
+                url TEXT NOT NULL,
+                title TEXT NOT NULL,
+                content TEXT NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
             """
             cursor.execute(query)
             connection.commit()
-            print("Tables created successfully!")
+            print("Table created successfully!")
         else:
-            print("Connection not established.")
+            print("Connection to the database failed.")
     except Exception as e:
-        print(f"Error creating tables: {e}")
+        print(f"Error creating table: {e}")
     finally:
         if connection:
             connection.close()
