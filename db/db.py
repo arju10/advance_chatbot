@@ -1,3 +1,4 @@
+import json
 import psycopg2
 from psycopg2 import sql
 
@@ -50,3 +51,40 @@ def create_table():
     finally:
         if connection:
             connection.close()
+
+# Function to insert data into the table
+# # Function to insert data into the table from a JSON file
+def insert_data_from_file(file_path):
+    try:
+        # Load JSON data from file
+        with open(file_path, 'r') as file:
+            json_data = json.load(file)
+        
+        connection = create_connection()
+        if connection:
+            cursor = connection.cursor()
+            
+            for entry in json_data:
+                query = """
+                INSERT INTO page_data (title, url, content)
+                VALUES (%s, %s, %s);
+                """
+                cursor.execute(query, (entry['title'], entry['url'], entry['content']))
+            
+            connection.commit()
+            print(f"Data from {file_path} inserted successfully!")
+        else:
+            print("Connection to the database failed.")
+    except Exception as e:
+        print(f"Error inserting data from file: {e}")
+    finally:
+        if connection:
+            connection.close()
+
+
+
+'''
+Neccesseary commands
+psql -U your_user_name -h localhost
+psql -U your_user_name -h localhost -d your_database_name
+'''
